@@ -29,8 +29,8 @@ const words = {
   ru: {
     studio: "Студия клавиатуры",
     build: "Моя сборка",
-    title: "Форма. Ощущение. Вы.",
-    subtitle: "Каждая деталь имеет значение.",
+    title: "Соберите свою клавиатуру",
+    subtitle: "Выберите раскладку, разберите слои, проверьте клавиши.",
     layout: "Раскладка",
     compare: "Сравнить размеры",
     finish: "Корпус",
@@ -104,8 +104,8 @@ const words = {
   en: {
     studio: "Keyboard studio",
     build: "Your build",
-    title: "Form. Feel. Yours.",
-    subtitle: "Every detail makes a difference.",
+    title: "Build your keyboard",
+    subtitle: "Choose a layout, explore the layers, and test the keys.",
     layout: "Layout",
     compare: "Compare sizes",
     finish: "Case",

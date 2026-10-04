@@ -1223,3 +1223,11 @@ dd {
 .without-webgl .drag-hint {
   display: none;
 }
+@media (max-width: 720px) {
+  .hero-caption p {
+    max-width: 88vw;
+  }
+  .stage-tools {
+    top: 176px;
+  }
+}

@@ -186,7 +186,7 @@ test("RU/EN, mobile resize and touch, reduced motion", async ({ page }) => {
   await page.getByRole("button", { name: "Switch to English" }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Form. Feel. Yours.",
+    "Build your keyboard",
   );
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: "reduce" });
