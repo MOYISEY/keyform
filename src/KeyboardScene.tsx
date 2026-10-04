@@ -401,6 +401,7 @@ export default function KeyboardScene(props: Props) {
       raf = 0;
       if (disposed) return;
       const p = live.current;
+      controls.enableDamping = !reduced.matches;
       const goal = p.explode / 100;
       const moving = Math.abs(current - goal) > 0.0005;
       current = reduced.matches ? goal : T.MathUtils.lerp(current, goal, 0.09);

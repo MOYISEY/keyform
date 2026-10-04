@@ -317,7 +317,7 @@ export default function App() {
       <header>
         <a className="brand" href={location.pathname} aria-label="Keyform">
           <span className="brand-mark">k</span>keyform
-          <span className="brand-dot">®</span>
+          <span className="brand-dot">°</span>
         </a>
         <span className="header-note">{t("studio")} / 001</span>
         <div className="header-actions">
