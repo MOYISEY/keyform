@@ -4,6 +4,12 @@ An original mechanical keyboard studio for Bakhtiyar's portfolio. A working conf
 
 ## Try it
 
+[Open the studio](https://moyisey.github.io/keyform/)
+
+![Keyform desktop studio](docs/keyform-desktop.png)
+
+[Exploded view](docs/keyform-exploded.png) · [Mobile view](docs/keyform-mobile.png)
+
 Choose a 65%, 75% or TKL layout, customise the case and keycaps, explore five mechanical layers, compare footprints and test the keys. Use **Your build** for JSON import/export, a text build sheet, a configuration link and explicit device-local save/restore.
 
 The keyboard is a concept, not a purchasable product. Dimensions are design targets. PCB traces, switch housings and internal assembly are schematic. No real component compatibility, price, sound simulation or manufacturing suitability is claimed.
