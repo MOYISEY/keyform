@@ -11,6 +11,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v4
@@ -24,8 +25,13 @@ jobs:
       - name: Verify the production build in Chromium
         run: |
           npm run preview > /tmp/keyform-preview.log 2>&1 &
-          npx wait-on http://127.0.0.1:5193
+          npx wait-on --timeout 30000 http://127.0.0.1:5193
           npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-failure-evidence
+          path: test-results
       - uses: actions/upload-pages-artifact@v4
         with:
           path: dist

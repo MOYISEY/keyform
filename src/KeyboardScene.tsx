@@ -21,6 +21,7 @@ interface Props {
   command: { id: number; action: string };
   lang: Lang;
   onReady: (ok: boolean) => void;
+  paused: boolean;
 }
 function roundShape(w: number, h: number, r: number) {
   const s = new T.Shape();
@@ -44,7 +45,7 @@ export default function KeyboardScene(props: Props) {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     wakeRef.current();
-  }, [props.explode, props.part, props.pressed, props.command]);
+  }, [props.explode, props.part, props.pressed, props.command, props.paused]);
   useEffect(() => {
     const el = host.current!;
     let renderer: T.WebGLRenderer;
@@ -401,6 +402,7 @@ export default function KeyboardScene(props: Props) {
       raf = 0;
       if (disposed) return;
       const p = live.current;
+      if (p.paused) return;
       controls.enableDamping = !reduced.matches;
       const goal = p.explode / 100;
       const moving = Math.abs(current - goal) > 0.0005;

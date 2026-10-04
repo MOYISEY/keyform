@@ -1,4 +1,11 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   DEFAULT,
   OPTIONS,
@@ -205,6 +212,9 @@ export default function App() {
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
+  useLayoutEffect(() => {
+    if (active) field.current?.focus();
+  }, [active]);
   useEffect(() => {
     const d = dialog.current;
     if (panel) {
@@ -372,6 +382,7 @@ export default function App() {
               command={command}
               lang={lang}
               onReady={setReady}
+              paused={panel !== null}
             />
           </Suspense>
           <div className="stage-tools">
@@ -812,6 +823,7 @@ export default function App() {
               </div>
               <button
                 className={"button " + (active ? "" : "dark")}
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                   if (active) {
                     setActive(false);
@@ -819,7 +831,6 @@ export default function App() {
                     field.current?.blur();
                   } else {
                     setActive(true);
-                    requestAnimationFrame(() => field.current?.focus());
                   }
                 }}
               >

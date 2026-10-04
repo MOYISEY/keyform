@@ -2,7 +2,8 @@ import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "tests",
   testMatch: "*.spec.ts",
-  timeout: 60000,
+  timeout: process.env.CI ? 120000 : 60000,
+  expect: { timeout: process.env.CI ? 15000 : 5000 },
   workers: 1,
   use: {
     baseURL: process.env.KEYFORM_URL || "http://127.0.0.1:5193",

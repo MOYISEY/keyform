@@ -98,6 +98,10 @@ test("typing is scoped to opt-in focus; on-screen test and leave clear input", a
   await page.keyboard.type("abc");
   await expect(page.getByLabel("Поле теста клавиатуры")).toHaveValue("abc");
   await expect(page.getByTestId("tested-count")).toHaveText("4 / 81 проверено");
+  await page.getByRole("button", { name: "Завершить тест", exact: true }).click();
+  await expect(page.getByLabel("Поле теста клавиатуры")).toBeDisabled();
+  await page.getByRole("button", { name: "Активировать поле" }).click();
+  await expect(page.getByLabel("Поле теста клавиатуры")).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(page.locator("dialog")).toBeVisible();
   await expect(page.getByLabel("Поле теста клавиатуры")).toBeDisabled();
