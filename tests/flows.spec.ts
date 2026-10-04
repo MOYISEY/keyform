@@ -4,9 +4,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto("./");
   await expect(page.locator("canvas")).toBeVisible();
 });
-test("all layouts and options update real state; explode, selection, camera, compare", async ({
-  page,
-}) => {
+test("all layouts and options update real state", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   for (const layout of OPTIONS.layout) {
@@ -43,6 +41,11 @@ test("all layouts and options update real state; explode, selection, camera, com
   }
   for (const material of ["polycarbonate", "aluminium"])
     await page.getByLabel("Материал корпуса").selectOption(material);
+  expect(errors).toEqual([]);
+});
+test("explode, selection, camera and comparison", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
   await page
     .locator(".layout-options")
     .getByRole("button", { name: "75%", exact: true })
@@ -98,7 +101,9 @@ test("typing is scoped to opt-in focus; on-screen test and leave clear input", a
   await page.keyboard.type("abc");
   await expect(page.getByLabel("Поле теста клавиатуры")).toHaveValue("abc");
   await expect(page.getByTestId("tested-count")).toHaveText("4 / 81 проверено");
-  await page.getByRole("button", { name: "Завершить тест", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Завершить тест", exact: true })
+    .click();
   await expect(page.getByLabel("Поле теста клавиатуры")).toBeDisabled();
   await page.getByRole("button", { name: "Активировать поле" }).click();
   await expect(page.getByLabel("Поле теста клавиатуры")).toBeFocused();

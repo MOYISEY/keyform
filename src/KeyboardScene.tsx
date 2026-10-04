@@ -155,6 +155,16 @@ export default function KeyboardScene(props: Props) {
     );
     const housing = mat("#dee1d1", 0.05, 0.4);
     const stem = mat(SWITCH_COLORS[props.config.switch], 0.1, 0.36);
+    const geometryCache = new Map<string, T.BufferGeometry>();
+    const batches = new Map<
+      string,
+      {
+        group: T.Group;
+        geometry: T.BufferGeometry;
+        material: T.Material;
+        positions: T.Vector3[];
+      }
+    >();
     function box(
       group: T.Group,
       w: number,
@@ -166,14 +176,25 @@ export default function KeyboardScene(props: Props) {
       m: T.Material,
       r = 0.06,
     ) {
-      const obj = new T.Mesh(
-        new RoundedBoxGeometry(w, h, d, 2, Math.min(r, h / 3)),
-        m,
-      );
+      const geometryKey = [w, h, d, r].join("/");
+      let geometry = geometryCache.get(geometryKey);
+      if (!geometry) {
+        geometry = new RoundedBoxGeometry(w, h, d, 2, Math.min(r, h / 3));
+        geometryCache.set(geometryKey, geometry);
+      }
+      const obj = new T.Mesh(geometry, m);
       obj.position.set(x, y, z);
       obj.castShadow = true;
       obj.receiveShadow = true;
-      group.add(obj);
+      if (group === layers.switches || group === layers.pcb) {
+        const id = group.uuid + "/" + geometryKey + "/" + m.uuid;
+        let batch = batches.get(id);
+        if (!batch) {
+          batch = { group, geometry, material: m, positions: [] };
+          batches.set(id, batch);
+        }
+        batch.positions.push(obj.position.clone());
+      } else group.add(obj);
       return obj;
     }
     box(layers.case, width, 0.36, depth, 0, 0, 0, metal, 0.1);
@@ -269,27 +290,24 @@ export default function KeyboardScene(props: Props) {
     });
     mats.push(labelMaterial);
     const pressMeshes = new Map<string, T.Group>();
+    const pads = new T.InstancedMesh(
+      new T.CylinderGeometry(0.1, 0.1, 0.012, 10),
+      gold,
+      keys.length,
+    );
+    layers.pcb.add(pads);
+    const traces: T.Vector3[] = [];
+    const capGeometryCache = new Map<number, T.BufferGeometry>();
     keys.forEach((k, i) => {
       const x = k.x - maxX / 2,
         z = k.z - maxZ / 2;
-      const pad = new T.Mesh(new T.CylinderGeometry(0.1, 0.1, 0.012, 10), gold);
-      pad.position.set(x - 0.2, 0.425, z);
-      layers.pcb.add(pad);
+      pads.setMatrixAt(i, new T.Matrix4().makeTranslation(x - 0.2, 0.425, z));
       box(layers.pcb, 0.19, 0.05, 0.09, x + 0.21, 0.445, z + 0.2, dark, 0.01);
-      const trace = new T.BufferGeometry().setFromPoints([
+      traces.push(
         new T.Vector3(x, 0.42, z),
         new T.Vector3(x, 0.42, z + 0.34),
+        new T.Vector3(x, 0.42, z + 0.34),
         new T.Vector3(x + 0.35, 0.42, z + 0.34),
-      ]);
-      layers.pcb.add(
-        new T.Line(
-          trace,
-          new T.LineBasicMaterial({
-            color: "#8eac7d",
-            transparent: true,
-            opacity: 0.6,
-          }),
-        ),
       );
       box(layers.switches, 0.64, 0.23, 0.64, x, 0.72, z, housing, 0.04);
       box(layers.switches, 0.25, 0.16, 0.09, x, 0.88, z, stem, 0.02);
@@ -311,15 +329,19 @@ export default function KeyboardScene(props: Props) {
       key.userData.code = k.code;
       layers.caps.add(key);
       pressMeshes.set(k.code, key);
-      const geometry = new RoundedBoxGeometry(k.w - 0.09, 0.43, 0.91, 3, 0.075);
-      const a = geometry.attributes.position;
-      for (let v = 0; v < a.count; v++) {
-        const py = a.getY(v),
-          factor = 1 - 0.14 * (py / 0.43 + 0.5);
-        a.setX(v, a.getX(v) * factor);
-        a.setZ(v, a.getZ(v) * factor);
+      let geometry = capGeometryCache.get(k.w);
+      if (!geometry) {
+        geometry = new RoundedBoxGeometry(k.w - 0.09, 0.43, 0.91, 3, 0.075);
+        const a = geometry.attributes.position;
+        for (let v = 0; v < a.count; v++) {
+          const py = a.getY(v),
+            factor = 1 - 0.14 * (py / 0.43 + 0.5);
+          a.setX(v, a.getX(v) * factor);
+          a.setZ(v, a.getZ(v) * factor);
+        }
+        geometry.computeVertexNormals();
+        capGeometryCache.set(k.w, geometry);
       }
-      geometry.computeVertexNormals();
       const cap = new T.Mesh(
         geometry,
         capMats[k.accent ? 2 : k.mod || k.label.length > 1 ? 1 : 0],
@@ -368,6 +390,29 @@ export default function KeyboardScene(props: Props) {
       0.008,
     );
     badge.userData.part = "case";
+    layers.pcb.add(
+      new T.LineSegments(
+        new T.BufferGeometry().setFromPoints(traces),
+        new T.LineBasicMaterial({
+          color: "#8eac7d",
+          transparent: true,
+          opacity: 0.6,
+        }),
+      ),
+    );
+    for (const batch of batches.values()) {
+      const mesh = new T.InstancedMesh(
+        batch.geometry,
+        batch.material,
+        batch.positions.length,
+      );
+      batch.positions.forEach((p, i) =>
+        mesh.setMatrixAt(i, new T.Matrix4().makeTranslation(p.x, p.y, p.z)),
+      );
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      batch.group.add(mesh);
+    }
     let disposed = false,
       raf = 0,
       frames = 4,
