@@ -1,29 +1,27 @@
 # Keyform
 
-An original mechanical keyboard studio for Bakhtiyar's portfolio. A working configurator built with React, TypeScript and Three.js, with procedural geometry and no external model or texture downloads.
+[Открыть студию](https://moyisey.github.io/keyform/) · [Исходный код](https://github.com/MOYISEY/keyform)
 
-## Try it
+Keyform — интерактивная студия концептуальной механической клавиатуры в портфолио Бахтияра. Выберите компоновку 65%, 75% или TKL, корпус и кейкапы, рассмотрите пять механических слоёв, сравните размеры и проверьте клавиши. Модель строится процедурно на React, TypeScript и Three.js: внешние 3D-модели и текстуры не скачиваются.
 
-[Open the studio](https://moyisey.github.io/keyform/)
+![Студия Keyform на компьютере](docs/keyform-desktop.png)
 
-![Keyform desktop studio](docs/keyform-desktop.png)
+[Вид по слоям](docs/keyform-exploded.png) · [Мобильный экран](docs/keyform-mobile.png)
 
-[Exploded view](docs/keyform-exploded.png) · [Mobile view](docs/keyform-mobile.png)
+Раздел «Моя сборка» позволяет импортировать и экспортировать JSON, скачать текстовый состав, создать ссылку на конфигурацию, а также по явному действию сохранить и восстановить сборку на этом устройстве.
 
-Choose a 65%, 75% or TKL layout, customise the case and keycaps, explore five mechanical layers, compare footprints and test the keys. Use **Your build** for JSON import/export, a text build sheet, a configuration link and explicit device-local save/restore.
+**Это концепция, а не товар для заказа.** Размеры — проектные ориентиры; дорожки платы, корпуса переключателей и внутренняя сборка показаны схематично. Совместимость с реальными компонентами, цена, звук и пригодность к производству не заявлены.
 
-The keyboard is a concept, not a purchasable product. Dimensions are design targets. PCB traces, switch housings and internal assembly are schematic. No real component compatibility, price, sound simulation or manufacturing suitability is claimed.
+## Локальный запуск и проверки
 
-## Local development
-
-Node.js 22.12+ or 24, npm:
+Нужны Node.js 22.12+ или 24 и npm:
 
 ```sh
 npm ci
 npm run dev
 ```
 
-The server binds to `127.0.0.1:5193` with a strict port. It never kills or reuses another project's process.
+Сервер использует `127.0.0.1:5193` со строгой проверкой порта и не останавливает процессы других проектов. В отдельном терминале:
 
 ```sh
 npm test
@@ -31,22 +29,22 @@ npm run build
 npm run preview
 ```
 
-For browser checks, keep the server running and use `npm run test:e2e`. Tests use installed Microsoft Edge on Windows; other platforms use Playwright Chromium (`npx playwright install chromium`). Override the target with `KEYFORM_URL`, including the trailing slash. The CI workflow verifies the production build before publishing it to GitHub Pages.
+Для браузерных тестов оставьте сервер предварительного просмотра работающим и запустите `npm run test:e2e`. На Windows тесты используют установленный Microsoft Edge, на других платформах — Playwright Chromium (`npx playwright install chromium`). Адрес можно переопределить через `KEYFORM_URL`, включая завершающий `/`. Существующий CI проверяет модульные и браузерные тесты с production-сборкой, затем публикует её в GitHub Pages.
 
-## Structure
+## Структура
 
-- `src/model.ts`: strict versioned configuration validation, URL encoding, build sheet, exact physical key coordinates and bilingual component descriptions.
-- `src/KeyboardScene.tsx`: original procedural meshes, generated legend atlas and environment, raycasting, orbit/touch controls, separated layers, demand rendering and disposal.
-- `src/App.tsx`: accessible RU/EN controls, modal focus management, configuration import/export, optional storage and scoped key test.
-- `src/style.css`: responsive cream studio layout and reduced-motion handling.
-- `tests/`: state invariants, untrusted input, browser workflows and screenshots.
+- `src/model.ts` — строгая проверка версионной конфигурации, кодирование ссылки, список деталей, координаты клавиш и описания компонентов на двух языках.
+- `src/KeyboardScene.tsx` — процедурная 3D-модель, атлас надписей и окружение, выбор деталей лучом, управление мышью/касанием, разнесённые слои, рендеринг по запросу и освобождение ресурсов.
+- `src/App.tsx` — доступные элементы управления на русском и английском, управление фокусом диалогов, импорт/экспорт, необязательное локальное сохранение и ограниченный полем тест клавиш.
+- `src/style.css` — адаптивная компоновка и поддержка reduced motion.
+- `tests/` — инварианты состояния, недоверенный ввод, браузерные сценарии и кадры.
 
-## Privacy and interaction
+## Приватность и ограничения
 
-No analytics, cookies, backend or remote assets. Physical `keydown`/`keyup` handlers exist only on the explicitly enabled textarea. Leaving it disables the test; Escape exits the field and Tab keeps normal navigation. Test text is cleared when the test closes, never saved, included in URLs or exported. The screen keyboard tests the concept's physical key positions; OS shortcuts and hardware Fn are not universally observable.
+Нет аналитики, cookies, сервера или удалённых ассетов. Обработчики физических `keydown`/`keyup` действуют только в явно включённом текстовом поле. При выходе тест прекращается; Escape выводит из поля, Tab сохраняет обычную навигацию. Текст теста очищается при закрытии и никогда не сохраняется, не попадает в ссылки или экспорт. Экранная клавиатура проверяет позиции клавиш концепции; сочетания ОС и аппаратный Fn нельзя универсально наблюдать из браузера.
 
-Configuration links contain only the seven validated configuration properties. Local storage is written only after **Save on this device**. Invalid, oversized or unknown-version files leave the current build unchanged. A WebGL failure retains a schematic 2D view and configuration/test/export tools. This is not an offline-installable PWA; initial loading requires a running local server or access to the hosted site.
+Ссылка содержит только семь проверенных свойств конфигурации. Локальное хранилище записывается лишь после «Сохранить на устройстве». Неверный, чрезмерно большой файл или файл неизвестной версии не меняет текущую сборку. При сбое WebGL остаются схематичный 2D-вид, конфигуратор, тест и экспорт. Это не устанавливаемое офлайн PWA: для первой загрузки нужен локальный сервер или доступ к опубликованному сайту.
 
-## Original work and dependencies
+## Авторство и зависимости
 
-All keyboard meshes, key legends, material colours, UI and marks are authored in this project. No reference footage, third-party device models, fonts or product photography are distributed. React, Three.js and development tools retain their respective upstream licences; see `THIRD_PARTY.md` and the package lock.
+Меши клавиатуры, надписи на клавишах, цвета материалов, интерфейс и знаки созданы в этом проекте. Референсные видео, сторонние модели устройств, шрифты и фотографии товаров не распространяются. React, Three.js и инструменты разработки сохраняют собственные лицензии; см. [THIRD_PARTY.md](THIRD_PARTY.md) и lock-файл. Отдельной лицензии на исходный код Keyform в репозитории нет.
